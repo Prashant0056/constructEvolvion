@@ -780,13 +780,91 @@ export const Agents: CollectionConfig = {
 **Slug:** `posts`  
 **Purpose:** Blog articles. Used on **Blog listing page** (node `851:21975`) and **Blog Details page** (node `852:23020`).
 
-#### Blog Listing Page (Page 13) sections
-- Hero section with hero image, "Blog" heading, breadcrumbs
-- All Blogs grid: 3 rows × 2 columns = 6 posts per page
-- Each card: full image (604×604), title, excerpt, "Read More" button + arrow
-- Pagination
+---
 
-#### Blog Details Page (Page 14) sections
+#### Verified Page Layout — "13 Blog" (node `851:21975`) ✓
+
+```
+┌──────────────────────────────────────── 1440px ────────────────────────────────────────┐
+│  HEADER (1440×96)                                                                      │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  HERO SECTION (1440×650) — full-bleed BG image (object-cover)                          │
+│    "Blog"  72px · SemiBold · white · tracking -1.44px   (x=100, y=504)                │
+│    Breadcrumbs: Home > Blog   14px · white                                              │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  ALL BLOGS SECTION (1440×2564, y=650)  px=100px · py=80px                              │
+│  ┌──────────────────────┐  ┌──────────────────────┐  ← gap: 32px between cards        │
+│  │   Image (604×604)    │  │   Image (604×604)    │                                    │
+│  │   rounded, cover     │  │   rounded, cover     │                                    │
+│  ├──────────────────────┤  ├──────────────────────┤  ← 16px gap below image           │
+│  │  Title (604×32)      │  │  Title (604×32)      │  ← title text, 1 line             │
+│  │  Excerpt (604×48)    │  │  Excerpt (604×48)    │  ← 2–3 lines                      │
+│  │  [Read More →]       │  │  [Read More →]       │  ← text btn(130px) + icon(48px)   │
+│  └──────────────────────┘  └──────────────────────┘                                    │
+│            ↕ 32px gap between rows                                                      │
+│  ┌──────────────────────┐  ┌──────────────────────┐                                    │
+│  │  Row 2 Card 1        │  │  Row 2 Card 2        │                                    │
+│  └──────────────────────┘  └──────────────────────┘                                    │
+│            ↕ 32px                                                                       │
+│  ┌──────────────────────┐  ┌──────────────────────┐                                    │
+│  │  Row 3 Card 1        │  │  Row 3 Card 2        │                                    │
+│  └──────────────────────┘  └──────────────────────┘                                    │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  FOOTER (1440×1422, y=3214)                                                            │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Important layout notes:**
+- **No section heading/subtext** above the grid — hero "Blog" heading is the page title; grid starts immediately
+- **No pagination component** visible in design — 6 posts displayed (3 rows × 2 columns), no Prev/Next buttons
+- Card height: 780px total = 604px image + 16px gap + 160px info area
+- Info area breakdown: title (32px) + 8px gap + excerpt (48px) + button at y=112
+
+**Blog card — exact dimensions:**
+
+| Element | Value |
+|---------|-------|
+| Card | 604×780px |
+| Image | 604×604px, rounded corners, object-cover |
+| Gap image→info | 16px (info frame starts at y=620) |
+| Title | 604×32px — 1 line, semibold |
+| Excerpt | 604×48px — 2–3 lines, 16px regular |
+| Button | 178px total: "Read More" text btn (130px) + arrow icon btn (48px) |
+| Gap between cards | 32px (card 2 starts at x=636 = 604+32) |
+| Gap between rows | 32px |
+
+**Fields shown on listing cards:** `heroImage`, `title`, `excerpt` — NO author, NO date, NO category tag visible
+
+**Mobile (375px):**
+- Cards stack 1 per row, full-width: 343×543px
+- Image: 343×343px (square, same ratio, rounded)
+- Info frame starts at y=359 (16px gap below image)
+- Header: logo + hamburger menu
+
+**Dark mode:** Page bg `#0d0a04` — same layout, card bg unchanged, title/excerpt text invert
+
+**Confirmed 6 post titles (sample data):**
+1. "Building Gains Into Housing Stocks and How to Trade The Sector"
+2. "92% of Millennial Homebuyers Say Inflation Has Impacted Their Plans"
+3. "The Art of Staging: How to Sell Your Home Quickly at a High Price."
+4. "Key Real Estate Trends to Watch in 2024"
+5. "Expert Tips for Profitable Real Estate Investments."
+6. "10 Things Your Competitors Can Teach You About Real Estate"
+
+**Frontend query:**
+```ts
+const { docs, totalDocs } = await payload.find({
+  collection: 'posts',
+  where: { status: { equals: 'published' } },
+  select: { title: true, heroImage: true, excerpt: true, slug: true },
+  sort: '-publishedAt',
+  limit: 6, // design shows 6; add pagination if needed
+})
+```
+
+---
+
+#### Blog Details Page (Page 14) — pending verification (node `852:23020`)
 - Breadcrumbs: Home > Blog > Post Title
 - Hero banner image (1240×500)
 - **Main column** (784px wide):
@@ -2031,7 +2109,7 @@ export const sendContactEmailHook = async ({ doc, req }: any) => {
 | — | Property Listing – Map | `/properties?view=map` | (inferred) | Properties with `location` point field, map embed |
 | 11 | About Us | `/about` | `849:19015` | AboutPage global — Hero, Mission (heading+subText+2 images), About Details (label+body+CTA), Benefits (shared from home-page), Agents (3 cards), Testimonials (shared), FAQ (shared) — **verified ✓** |
 | 12 | Our Agents | `/agents` | `849:20536` | Users (role=agent), hero (72px heading "Our Agents" + breadcrumbs) + 3×2 card grid (392×392, r=32px, no heading above grid, no pagination) — **verified ✓** |
-| 13 | Blog | `/blog` | `851:21975` | Posts collection, 2-col card grid, 6 per page |
+| 13 | Blog | `/blog` | `851:21975` | Posts collection — hero ("Blog" heading + breadcrumbs) + 3×2 card grid (604×780 cards, 604×604 img, 32px gaps, no heading above grid, no pagination in design) — **verified ✓** |
 | 14 | Blog Details | `/blog/[slug]` | `852:23020` | Single Post + BlogComments + sidebar posts/categories |
 | 15 | Contact Us | `/contact` | `854:24397` | ContactSubmissions, contact info, form |
 | 16 | Terms & Conditions | `/terms` | (inferred) | TermsConditions global |
