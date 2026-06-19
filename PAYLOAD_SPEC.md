@@ -293,15 +293,18 @@ await payload.find({
 })
 ```
 
-**6 sample properties visible in design:**
+**6 sample properties visible in design (all values confirmed from Figma node 844:8443):**
 | # | Title | Beds | Baths | Area |
 |---|-------|------|-------|------|
 | 1 | Cascading Waters Villa of Serenity | 5 | 6 | 5320 sqft |
 | 2 | Starlit Cove Private Villa Retreat | 6 | 8 | 6740 sqft |
-| 3 | Villa of Whispering Winds and Waves | 7 | — | 7910 sqft |
-| 4 | Blissful Breeze at Seaside Villa | 4 | — | 4780 sqft |
-| 5 | Golden Sands Haven by the Bay | — | 5 | 4800 sqft |
-| 6 | Enchanted Garden View Villa Retreat | 5 | — | 5500 sqft |
+| 3 | Villa of Whispering Winds and Waves | 7 | 8 | 7910 sqft |
+| 4 | Blissful Breeze at Seaside Villa | 4 | 6 | 4780 sqft |
+| 5 | Golden Sands Haven by the Bay | 4 | 5 | 4800 sqft |
+| 6 | Enchanted Garden View Villa Retreat | 5 | 6 | 5500 sqft |
+
+> **Implementation status:** `src/collections/Properties/index.ts` already has `title`, `status`, `featured`, `listingType`, `price`, `currency`, `propertyType`, `bedrooms`, `bathrooms`, `area`, `areaUnit`, `yearBuilt`, `heroImage`, `gallery`, `description`, `amenities`, `address` group, `location` (point), `agent`, `tags`, `videoUrl`, `virtualTourUrl`, and `slug` (via `slugField()`).
+> **Not yet added to implementation (required for Property Detail page):** `propertyStatus`, `balcony`, `parking`, `carpetArea`, `dimensions`, `rating`, `reviewCount`. These power the Details table and rating header on the detail page.
 
 #### Fields
 
@@ -2221,7 +2224,7 @@ export const sendContactEmailHook = async ({ doc, req }: any) => {
 
 ```ts
 import { buildConfig } from 'payload'
-import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -2277,11 +2280,13 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
-  db: mongooseAdapter({
-    url: process.env.DATABASE_URL || '',
+  db: postgresAdapter({
+    pool: {
+      connectionString: process.env.DATABASE_URL || '',
+    },
   }),
-  // Point fields require MongoDB replica set or PostgreSQL
-  // SQLite does NOT support point fields
+  // The `location` point field on Properties requires PostGIS.
+  // Run the Docker container with postgis/postgis:16-3.4 (not plain postgres:16).
 })
 ```
 
