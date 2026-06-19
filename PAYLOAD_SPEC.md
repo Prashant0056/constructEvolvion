@@ -227,51 +227,92 @@ export const Media: CollectionConfig = {
 
 > **Important:** Price is NOT shown on listing cards. It appears only on the Featured Property Spotlight (home page) and on the Property Detail page.
 
-#### Property Detail Page — Layout (verified from node 848:17943)
+#### Property Detail Page — Layout (verified from node 848:17943) ✓
+
+Total page height: **4865px** (light variant; dark identical in structure).
 
 ```
-[Header — 1440×96]
-[Breadcrumbs — Home > Properties > {Title}]
-[All Property Details — 1440px, two-column content area]
-  LEFT COLUMN (x=100, width=616):
-    [Images — 616×825]
-      Main image      (616×616, rounded-xl)
-      Thumbnail row   (3 × 189×185, 24px gap)
-        thumb 1 | thumb 2 | thumb 3 "+4 More"
-    [Inquiry Form — 616×594, card with border]
-      "Inquiry Form" heading
-      Name       (Input, 568×72)
-      Email      (Input, 568×72)
-      Phone      (Input, 568×72)
-      Message    (Textarea, 568×138)
-      [Send Inquiry btn — 190×48]
+[Header — y=0,    1440×96]
+[Breadcrumbs — y=96,   1440×52]
+  Home > Properties > {Title}    ← 3-level breadcrumb (2 chevron icons)
 
-  RIGHT COLUMN (x=780, width=560):
-    [Property Header — 560×222]
-      Title        (large heading, 404×90)
-      📍 Display Address
-      ⭐ 4.8 (12K Reviews)
-      🛏 6 bedrooms  🚿 8 baths  ⬜ 6740 Sqft
-    [Descriptions — richText body]
-    [Details table — 560×408, 2-col grid, 72px rows]
-      Built Up Area  | Dimensions
-      Carpet Area    | Built Year
-      Property Category | Property Status
-      Bedrooms       | Bathrooms
-      Balcony        | Parking
-    [Agent Details — 560×144]
-      "Agent Details" heading
-      [Avatar 64×64] Jacob Jones / Real Estate Agent  [Contact btn]
+[All Property Details — y=148,  1440×1595,  two-column]
 
-[Similar Properties — 1440×896]
-  "Similar Properties" heading + "View All" btn
-  Row of 2 property cards (same 604×716 grid cards)
+  LEFT COLUMN  (x=100, width=616)              RIGHT COLUMN  (x=780, width=560)
+  ────────────────────────────────────────     ─────────────────────────────────────
+  [Images — 616×825]                           [Property Header — 560×222]
+    Main image (616×616, rounded-xl)             Title text (404×90, large heading)
+    ↕ 24px gap (thumbnails start at y=640)       📍 Display Address (24px)
+    Thumbnail row (616×185)                      ⭐ 4.8 (12K Reviews) (24px)
+      3 thumbs × 189×185, 24px gap between       🛏 N beds  🚿 N baths  ⬜ N sqft (24px)
+      thumb 3: "+4 More" text overlay            [Share/Contact btn — 140×48 at x=420]
+                                                   text 92px + icon 48px
+  ↕ 64px gap (Form starts at y=889)
+                                               ↕ 32px gap
+  [Inquiry Form — 616×594]
+    inner padding: 24px all sides              [Descriptions — 560×528]
+    "Inquiry Form" heading (568×32)              "Descriptions" heading (560×32)
+    Name     (Input,    568×72)                  Body richText (560×456)
+    Email    (Input,    568×72)
+    Phone    (Input,    568×72)                ↕ 32px gap
+    Message  (Textarea, 568×138)
+    [Send Inquiry btn — 190×48]                [Details — 560×408]
+      text 142px + icon 48px                     "Details" heading (560×32)
+                                                 Table (560×360) — 5 rows × 72px:
+  ← 64px inter-column gap →                       Row 1: Built Up Area  | Dimensions
+  (780 − (100+616) = 64px)                        Row 2: Carpet Area    | Built Year
+                                                   Row 3: Property Cat. | Property Status
+                                                   Row 4: Bedrooms      | Bathrooms
+                                                   Row 5: Balcony       | Parking
+                                                 Sample values (Starlit Cove):
+                                                   6740 sqft | 50X60
+                                                   6530 sqft | 2024
+                                                   Villa     | Ready
+                                                   6         | 8
+                                                   5         | 2 Car Parking
 
-[FAQ Section — 1440×804]
-  "Frequently Ask Questions" heading + sub-text
-  4 accordion items (same set as Home page FAQ)
+                                               ↕ 32px gap
 
-[Footer CTA + Footer]
+                                               [Agent Details — 560×144]
+                                                 "Agent Details" heading (32px)
+                                                 Agent card (560×96, y=48):
+                                                   Avatar (64×64, x=16)
+                                                   Name 30px + Role 24px (x=96)
+                                                   [Contact btn — 166×48 at x=378]
+                                                     text 118px + icon 48px
+
+[Similar Properties — y=1743,  1440×896]
+  Header row (x=100, 1240×60):
+    "Similar Properties" heading (1070×60)
+    [View All btn — 154×48 at x=1086]  ← text 106px + icon 48px
+  Row_1 (x=100, y=100, 1240×716) — 2 × 604×716 cards, 32px gap:
+    "Golden Sands Haven by the Bay" (4 beds, 5 baths, 4800 sqft)
+    "Enchanted Garden View Villa Retreat" (5 beds, 6 baths, 5500 sqft)
+
+[FAQ Section — y=2639,  1440×804]
+  Main Text (x=100, y=80, 922×100):
+    "Frequently Ask Questions" heading (922×60)
+    Sub-text paragraph (922×24)
+  All FAQs (x=100, y=244, 1240×480) — 4 accordion items:
+    1. "How Does Our Platform Work?"              ← expanded (144px, answer visible)
+    2. "Make a plan according to the concept"     ← collapsed (80px)
+    3. "How Can I Find A Property To Buy or Sell" ← collapsed (80px)
+    4. "What Information is Included in..."       ← collapsed (80px)
+
+[Footer — y=3443,  1440×1422]
+```
+
+**Mobile (375px) — single column:**
+```
+[Header — 375×64]  logo + hamburger
+[Breadcrumbs — y=64, 375×36]  3-level, x=16
+[All Property Details — y=100, 375×3321]
+  Images (x=16, 343×465):
+    Main image  343×343
+    ↕ 24px gap  (thumbnails at y=367)
+    Thumbnails  343×98  — 3 × 98×98, 24px gap, thumb 3 "+4 More"
+  Inquiry Form  (y=497, 343×594) — inputs scale to 295×76
+  Property Header, Descriptions, Details, Agent stack below form
 ```
 
 **Inquiry Form** saves to `contact-submissions` with `source: 'property-detail'` and `relatedProperty` populated.
