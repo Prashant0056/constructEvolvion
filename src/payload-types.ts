@@ -74,6 +74,7 @@ export interface Config {
   collections: {
     users: User;
     pages: Page;
+    properties: Property;
     categories: Category;
     media: Media;
     forms: Form;
@@ -107,6 +108,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    properties: PropertiesSelect<false> | PropertiesSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -131,10 +133,14 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    'home-page': HomePage;
+    'about-page': AboutPage;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    'home-page': HomePageSelect<false> | HomePageSelect<true>;
+    'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
   };
   locale: null;
   widgets: {
@@ -187,7 +193,34 @@ export interface UserAuthOperations {
 export interface User {
   id: number;
   name?: string | null;
-  roles?: ('admin' | 'customer')[] | null;
+  roles?: ('admin' | 'agent' | 'customer')[] | null;
+  title?: string | null;
+  avatar?: (number | null) | Media;
+  bio?: string | null;
+  phone?: string | null;
+  rating?: number | null;
+  reviewCount?: number | null;
+  totalSales?: number | null;
+  totalListings?: number | null;
+  specializations?:
+    | {
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  languages?:
+    | {
+        language?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  socialLinks?: {
+    linkedin?: string | null;
+    facebook?: string | null;
+    instagram?: string | null;
+    twitter?: string | null;
+  };
+  featuredOnHomepage?: boolean | null;
   orders?: {
     docs?: (number | Order)[];
     hasNextPage?: boolean;
@@ -221,6 +254,40 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  alt: string;
+  caption?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -318,40 +385,6 @@ export interface Product {
   createdAt: string;
   deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  alt: string;
-  caption?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1022,6 +1055,96 @@ export interface Address {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "properties".
+ */
+export interface Property {
+  id: number;
+  title: string;
+  status?: ('draft' | 'published' | 'sold' | 'rented') | null;
+  /**
+   * Pin as the Featured Property spotlight on the home page
+   */
+  featured?: boolean | null;
+  listingType: 'sale' | 'rent';
+  /**
+   * Price shown on detail page and featured spotlight only — not on listing cards
+   */
+  price: number;
+  currency?: ('USD' | 'EUR' | 'GBP') | null;
+  propertyType?: ('house' | 'apartment' | 'villa' | 'studio' | 'commercial' | 'land') | null;
+  bedrooms?: number | null;
+  bathrooms?: number | null;
+  area?: number | null;
+  areaUnit?: ('sqft' | 'sqm') | null;
+  yearBuilt?: number | null;
+  /**
+   * Primary image — rendered at 604×604 on listing cards
+   */
+  heroImage: number | Media;
+  gallery?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  amenities?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  address?: {
+    street?: string | null;
+    city?: string | null;
+    state?: string | null;
+    zip?: string | null;
+    country?: string | null;
+    /**
+     * Full formatted string shown on listing cards, e.g. "3891 Ranchview Dr. Richardson, California"
+     */
+    displayAddress?: string | null;
+  };
+  /**
+   * @minItems 2
+   * @maxItems 2
+   */
+  location?: [number, number] | null;
+  agent: number | User;
+  tags?:
+    | {
+        tag?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  videoUrl?: string | null;
+  virtualTourUrl?: string | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
  */
 export interface FormSubmission {
@@ -1068,6 +1191,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'properties';
+        value: number | Property;
       } | null)
     | ({
         relationTo: 'categories';
@@ -1166,6 +1293,35 @@ export interface PayloadMigration {
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
   roles?: T;
+  title?: T;
+  avatar?: T;
+  bio?: T;
+  phone?: T;
+  rating?: T;
+  reviewCount?: T;
+  totalSales?: T;
+  totalListings?: T;
+  specializations?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  languages?:
+    | T
+    | {
+        language?: T;
+        id?: T;
+      };
+  socialLinks?:
+    | T
+    | {
+        linkedin?: T;
+        facebook?: T;
+        instagram?: T;
+        twitter?: T;
+      };
+  featuredOnHomepage?: T;
   orders?: T;
   cart?: T;
   addresses?: T;
@@ -1357,6 +1513,64 @@ export interface FormBlockSelect<T extends boolean = true> {
   introContent?: T;
   id?: T;
   blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "properties_select".
+ */
+export interface PropertiesSelect<T extends boolean = true> {
+  title?: T;
+  status?: T;
+  featured?: T;
+  listingType?: T;
+  price?: T;
+  currency?: T;
+  propertyType?: T;
+  bedrooms?: T;
+  bathrooms?: T;
+  area?: T;
+  areaUnit?: T;
+  yearBuilt?: T;
+  heroImage?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  description?: T;
+  amenities?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  address?:
+    | T
+    | {
+        street?: T;
+        city?: T;
+        state?: T;
+        zip?: T;
+        country?: T;
+        displayAddress?: T;
+      };
+  location?: T;
+  agent?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  videoUrl?: T;
+  virtualTourUrl?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1836,6 +2050,197 @@ export interface Footer {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-page".
+ */
+export interface HomePage {
+  id: number;
+  hero: {
+    backgroundImage: number | Media;
+    heading?: string | null;
+    subHeading?: string | null;
+    searchLocationPlaceholder?: string | null;
+    searchButtonLabel?: string | null;
+  };
+  aboutSection?: {
+    label?: string | null;
+    body?: string | null;
+    ctaLabel?: string | null;
+    ctaHref?: string | null;
+  };
+  featuredPropertySection?: {
+    /**
+     * Single highlighted property shown prominently on the home page
+     */
+    property?: (number | null) | Property;
+  };
+  benefitsSection?: {
+    heading?: string | null;
+    subText?: string | null;
+    benefits?:
+      | {
+          /**
+           * e.g. 01, 02, 03, 04
+           */
+          number?: string | null;
+          title: string;
+          description?: string | null;
+          icon?: (number | null) | Media;
+          id?: string | null;
+        }[]
+      | null;
+    viewAllLabel?: string | null;
+    viewAllHref?: string | null;
+  };
+  latestPropertiesSection?: {
+    heading?: string | null;
+    subText?: string | null;
+    /**
+     * 2×2 grid — select exactly 4 properties
+     */
+    properties?: (number | Property)[] | null;
+    viewAllLabel?: string | null;
+    viewAllHref?: string | null;
+  };
+  agentsSection?: {
+    heading?: string | null;
+    subText?: string | null;
+    /**
+     * 3 agent cards displayed on home page
+     */
+    featuredAgents?: (number | User)[] | null;
+    viewAllLabel?: string | null;
+    viewAllHref?: string | null;
+  };
+  testimonialsSection?: {
+    heading?: string | null;
+    subText?: string | null;
+    testimonials?:
+      | {
+          quote: string;
+          authorName: string;
+          /**
+           * e.g. Founder, Buyer
+           */
+          authorTitle?: string | null;
+          authorAvatar?: (number | null) | Media;
+          rating?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  faqSection?: {
+    heading?: string | null;
+    subText?: string | null;
+    faqs?:
+      | {
+          question: string;
+          answer: {
+            root: {
+              type: string;
+              children: {
+                type: any;
+                version: number;
+                [k: string]: unknown;
+              }[];
+              direction: ('ltr' | 'rtl') | null;
+              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+              indent: number;
+              version: number;
+            };
+            [k: string]: unknown;
+          };
+          id?: string | null;
+        }[]
+      | null;
+    viewAllLabel?: string | null;
+    viewAllHref?: string | null;
+  };
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogImage?: (number | null) | Media;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-page".
+ */
+export interface AboutPage {
+  id: number;
+  hero?: {
+    backgroundImage?: (number | null) | Media;
+    heading?: string | null;
+  };
+  missionSection?: {
+    heading?: string | null;
+    body?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    stats?:
+      | {
+          value?: string | null;
+          label?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  storySection?: {
+    heading?: string | null;
+    body?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    image?: (number | null) | Media;
+  };
+  valuesSection?: {
+    heading?: string | null;
+    values?:
+      | {
+          title?: string | null;
+          description?: string | null;
+          icon?: (number | null) | Media;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Agents shown on About Us page
+   */
+  featuredAgents?: (number | User)[] | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -1875,6 +2280,165 @@ export interface FooterSelect<T extends boolean = true> {
               label?: T;
             };
         id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-page_select".
+ */
+export interface HomePageSelect<T extends boolean = true> {
+  hero?:
+    | T
+    | {
+        backgroundImage?: T;
+        heading?: T;
+        subHeading?: T;
+        searchLocationPlaceholder?: T;
+        searchButtonLabel?: T;
+      };
+  aboutSection?:
+    | T
+    | {
+        label?: T;
+        body?: T;
+        ctaLabel?: T;
+        ctaHref?: T;
+      };
+  featuredPropertySection?:
+    | T
+    | {
+        property?: T;
+      };
+  benefitsSection?:
+    | T
+    | {
+        heading?: T;
+        subText?: T;
+        benefits?:
+          | T
+          | {
+              number?: T;
+              title?: T;
+              description?: T;
+              icon?: T;
+              id?: T;
+            };
+        viewAllLabel?: T;
+        viewAllHref?: T;
+      };
+  latestPropertiesSection?:
+    | T
+    | {
+        heading?: T;
+        subText?: T;
+        properties?: T;
+        viewAllLabel?: T;
+        viewAllHref?: T;
+      };
+  agentsSection?:
+    | T
+    | {
+        heading?: T;
+        subText?: T;
+        featuredAgents?: T;
+        viewAllLabel?: T;
+        viewAllHref?: T;
+      };
+  testimonialsSection?:
+    | T
+    | {
+        heading?: T;
+        subText?: T;
+        testimonials?:
+          | T
+          | {
+              quote?: T;
+              authorName?: T;
+              authorTitle?: T;
+              authorAvatar?: T;
+              rating?: T;
+              id?: T;
+            };
+      };
+  faqSection?:
+    | T
+    | {
+        heading?: T;
+        subText?: T;
+        faqs?:
+          | T
+          | {
+              question?: T;
+              answer?: T;
+              id?: T;
+            };
+        viewAllLabel?: T;
+        viewAllHref?: T;
+      };
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        ogImage?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-page_select".
+ */
+export interface AboutPageSelect<T extends boolean = true> {
+  hero?:
+    | T
+    | {
+        backgroundImage?: T;
+        heading?: T;
+      };
+  missionSection?:
+    | T
+    | {
+        heading?: T;
+        body?: T;
+        stats?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              id?: T;
+            };
+      };
+  storySection?:
+    | T
+    | {
+        heading?: T;
+        body?: T;
+        image?: T;
+      };
+  valuesSection?:
+    | T
+    | {
+        heading?: T;
+        values?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              icon?: T;
+              id?: T;
+            };
+      };
+  featuredAgents?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
       };
   updatedAt?: T;
   createdAt?: T;
