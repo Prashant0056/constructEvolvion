@@ -1479,87 +1479,169 @@ export const HomePage: GlobalConfig = {
 ### 5. AboutPage Global
 
 **Slug:** `about-page`  
-**Purpose:** Controls the About Us page (node `849:19015`).
+**Purpose:** Controls the About Us page. Verified against Figma node `849:19015` ("11 About Us") — Light, Dark, and Mobile variants.
 
-**Design sections from Page 11 (About Us):**
-1. **Hero** — full-width hero image, "About Us" heading, Home > About Us breadcrumbs
-2. **Mission section** — heading "We Are on A Mission to Change View of Real Estate Field", body text, key stats
-3. **Team/values section** — image + body
-4. **Agent grid** — subset of agents (same component as Our Agents page)
-5. **Testimonials/reviews**
-6. **Footer CTA + Footer**
+**Confirmed sections (in order, with y-positions):**
+
+```
+[Header — 1440×96]
+[Hero Section — 1440×650, y=0]
+  Full-width BG image (1540×2310, object-cover)
+  "About Us" heading (308×86, bottom-left at y=504)
+  Breadcrumbs: Home > About Us
+
+[Mission Section — 1440×1012, y=650]
+  Heading: "We Are on A Mission to Change View of Real Estate Field" (922×120)
+  Sub-text paragraph (922×48)
+  Two side-by-side images (604×604 each, 32px gap, total 1240×604)
+
+[About Us Details Section — 1440×632, y=1662]
+  Left:  "About Us" label (205×60)
+  Right: Body paragraph (915×360) + CTA button (178×48)
+
+[Benefits Section — 1440×1294, y=2294]  ← shared with Home page
+  Heading: "Benefits You Get When You Use Our Services" (922×120)
+  Sub-text (922×48)
+  4 numbered benefit items in a row (286×125 each, 32px gap)
+    01 Best Platform | 02 Comfort & Space | 03 24/7 Support | 04 Best Market Price
+  Large background image behind/below benefits (1240×650)
+
+[Our Agents Section — 1440×796, y=3588]
+  Heading: "Our Agents" + sub-text + "All Agents" button
+  3 agent cards (392×472 each, 32px gap):
+    Image 392×392 (rounded) + Name (32px) + Role text (24px)
+    → Wade Warren | Jenny Wilson | Devon Lane
+
+[Testimonials Section]  ← shared with Home page
+  Same carousel component + data as Home page
+
+[FAQ Section — 1440×804, y=5196]  ← shared with Home page
+  Same 4-item accordion as Home page
+
+[Footer CTA + Footer]
+```
+
+> **Shared sections:** Benefits, Testimonials, and FAQ render the **same component and data** as the Home page. On the frontend, fetch these from the `home-page` global to avoid duplication:
+> ```ts
+> const homePage = await payload.findGlobal({ slug: 'home-page' })
+> // Use homePage.benefitsSection, homePage.testimonialsSection, homePage.faqSection
+> ```
+
+#### Fields removed (were wrong):
+- `stats` — no stat counters exist in the design
+- `storySection` — doesn't exist; replaced by `aboutDetailsSection`
+- `valuesSection` — doesn't exist; Benefits section is shared from home page
 
 ```ts
 export const AboutPage: GlobalConfig = {
   slug: 'about-page',
   admin: { group: 'Pages' },
   fields: [
+    // ─── 1. Hero ───────────────────────────────────────────────────────
     {
       name: 'hero',
       type: 'group',
       fields: [
-        { name: 'backgroundImage', type: 'upload', relationTo: 'media' },
+        {
+          name: 'backgroundImage',
+          type: 'upload',
+          relationTo: 'media',
+          required: true,
+          admin: { description: 'Full-width hero background — 1440×650, object-cover' },
+        },
         { name: 'heading', type: 'text', defaultValue: 'About Us' },
       ],
     },
+
+    // ─── 2. Mission Section ────────────────────────────────────────────
     {
       name: 'missionSection',
       type: 'group',
+      label: 'Mission Section',
       fields: [
         {
           name: 'heading',
           type: 'text',
           defaultValue: 'We Are on A Mission to Change View of Real Estate Field',
         },
-        { name: 'body', type: 'richText' },
+        { name: 'subText', type: 'textarea' },
         {
-          name: 'stats',
+          name: 'images',
           type: 'array',
+          maxRows: 2,
+          minRows: 2,
+          admin: { description: 'Exactly 2 images displayed side-by-side at 604×604 each' },
           fields: [
-            { name: 'value', type: 'text' },
-            { name: 'label', type: 'text' },
+            { name: 'image', type: 'upload', relationTo: 'media', required: true },
+            { name: 'alt', type: 'text' },
           ],
         },
       ],
     },
+
+    // ─── 3. About Us Details ───────────────────────────────────────────
     {
-      name: 'storySection',
+      name: 'aboutDetailsSection',
       type: 'group',
+      label: 'About Us Details',
       fields: [
-        { name: 'heading', type: 'text' },
-        { name: 'body', type: 'richText' },
-        { name: 'image', type: 'upload', relationTo: 'media' },
-      ],
-    },
-    {
-      name: 'valuesSection',
-      type: 'group',
-      fields: [
-        { name: 'heading', type: 'text' },
         {
-          name: 'values',
-          type: 'array',
-          fields: [
-            { name: 'title', type: 'text' },
-            { name: 'description', type: 'textarea' },
-            { name: 'icon', type: 'upload', relationTo: 'media' },
-          ],
+          name: 'label',
+          type: 'text',
+          defaultValue: 'About Us',
+          admin: { description: 'Left-side label (205×60)' },
         },
+        {
+          name: 'body',
+          type: 'textarea',
+          defaultValue:
+            'Our company specialise in transacting all type of properties in united state and making sure our clients enjoy a smooth and straightforward process that is tailored to their needs. We worked hard to ensure that our clients could trust the service we offer by hiring the best people for the job and you can too. We are committed to providing a unique and unforgettable property experience with our expert team, extensive network and personalized service.',
+        },
+        { name: 'ctaLabel', type: 'text', defaultValue: 'Learn More' },
+        { name: 'ctaHref', type: 'text', defaultValue: '/properties' },
       ],
     },
+
+    // ─── 4. Benefits — shared from home-page global ────────────────────
+    // No fields stored here. Fetch from home-page global on the frontend:
+    // const { benefitsSection } = await payload.findGlobal({ slug: 'home-page' })
+
+    // ─── 5. Our Agents ─────────────────────────────────────────────────
     {
-      name: 'featuredAgents',
-      type: 'relationship',
-      relationTo: 'users',
-      hasMany: true,
-      admin: { description: 'Agents shown on About Us page' },
+      name: 'agentsSection',
+      type: 'group',
+      label: 'Our Agents Section',
+      fields: [
+        { name: 'heading', type: 'text', defaultValue: 'Our Agents' },
+        { name: 'subText', type: 'textarea' },
+        {
+          name: 'featuredAgents',
+          type: 'relationship',
+          relationTo: 'users',
+          hasMany: true,
+          maxRows: 3,
+          filterOptions: { role: { equals: 'agent' } },
+          admin: { description: '3 agent cards — 392×392 image + name + role' },
+        },
+        { name: 'viewAllLabel', type: 'text', defaultValue: 'All Agents' },
+        { name: 'viewAllHref', type: 'text', defaultValue: '/agents' },
+      ],
     },
+
+    // ─── 6. Testimonials — shared from home-page global ───────────────
+    // Fetch from: const { testimonialsSection } = await payload.findGlobal({ slug: 'home-page' })
+
+    // ─── 7. FAQ — shared from home-page global ─────────────────────────
+    // Fetch from: const { faqSection } = await payload.findGlobal({ slug: 'home-page' })
+
+    // ─── SEO ───────────────────────────────────────────────────────────
     {
       name: 'seo',
       type: 'group',
       fields: [
-        { name: 'metaTitle', type: 'text' },
+        { name: 'metaTitle', type: 'text', defaultValue: 'About Us - Ventr' },
         { name: 'metaDescription', type: 'textarea' },
+        { name: 'ogImage', type: 'upload', relationTo: 'media' },
       ],
     },
   ],
@@ -1872,7 +1954,7 @@ export const sendContactEmailHook = async ({ doc, req }: any) => {
 | 09 | Property Listing – Filter | `/properties?filter=open` | `847:12914` | Left sidebar filter panel (price range, type, beds, baths, area, city) + same grid |
 | 10 | Property Details | `/properties/[slug]` | `848:17943` | Two-col layout: left=gallery (main+3 thumbs "+N More") + Inquiry Form; right=title/address/rating/stats + Descriptions richText + Details table (8 spec rows) + Agent card. Below: Similar Properties (2 cards) + FAQ accordion — **verified ✓** |
 | — | Property Listing – Map | `/properties?view=map` | (inferred) | Properties with `location` point field, map embed |
-| 11 | About Us | `/about` | `849:19015` | AboutPage global, agents subset |
+| 11 | About Us | `/about` | `849:19015` | AboutPage global — Hero, Mission (heading+subText+2 images), About Details (label+body+CTA), Benefits (shared from home-page), Agents (3 cards), Testimonials (shared), FAQ (shared) — **verified ✓** |
 | 12 | Our Agents | `/agents` | `849:20536` | Users (role=agent), 3×2 card grid |
 | 13 | Blog | `/blog` | `851:21975` | Posts collection, 2-col card grid, 6 per page |
 | 14 | Blog Details | `/blog/[slug]` | `852:23020` | Single Post + BlogComments + sidebar posts/categories |
