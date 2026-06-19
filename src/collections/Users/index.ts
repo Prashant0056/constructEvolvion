@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
 import { adminOnlyFieldAccess } from '@/access/adminOnlyFieldAccess'
+import { adminSelfOrPublicAgent } from '@/access/adminSelfOrPublicAgent'
 import { publicAccess } from '@/access/publicAccess'
 import { adminOrSelf } from '@/access/adminOrSelf'
 import { checkRole } from '@/access/utilities'
@@ -14,7 +15,7 @@ export const Users: CollectionConfig = {
     admin: ({ req: { user } }) => checkRole(['admin'], user),
     create: publicAccess,
     delete: adminOnly,
-    read: adminOrSelf,
+    read: adminSelfOrPublicAgent,
     unlock: adminOnly,
     update: adminOrSelf,
   },
