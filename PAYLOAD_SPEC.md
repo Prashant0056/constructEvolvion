@@ -628,7 +628,82 @@ Map view requires the `location` `point` field with Payload's `near` operator.
 
 > **Note:** Instead of a separate `agents` collection you can extend `Users` with agent-specific fields. A separate collection is recommended only if agents need richer profiles beyond what users need for auth.
 
-**Design shows:** 3-column grid, 2 rows = 6 agents visible per view. Each card shows: square (392×392) rounded photo, name (24px semibold), title/role (16px gray).
+---
+
+#### Verified Page Layout — "12 Our Agents" (node `849:20536`) ✓
+
+```
+┌────────────────────────────────────────── 1440px ──────────────────────────────────────────┐
+│  HEADER (1440×96) — white nav links + Login btn on dark hero bg                            │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│  HERO SECTION (1440×650) — full-bleed BG image (object-cover)                              │
+│    "Our Agents"  72px · SemiBold · white · tracking -1.44px   (left: 100px, y: 504px)     │
+│    Breadcrumbs: Home > Our Agents   14px · white                                            │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│  AGENTS GRID (px: 100px, py: 80px)                                                         │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ← gap: 32px between cards          │
+│  │  392×392 img │  │  392×392 img │  │  392×392 img │                                      │
+│  │  r=32px      │  │  r=32px      │  │  r=32px      │                                      │
+│  └──────────────┘  └──────────────┘  └──────────────┘                                      │
+│  Wade Warren       Jenny Wilson        Devon Lane         ← gap-16px between img and name   │
+│  Real Estate Agent Real Estate Agent   Real Estate Agent  name: 24px SemiBold #0d0a04       │
+│                                                           role: 16px Regular #7b7b7b op-70  │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                                      │
+│  │  392×392 img │  │  392×392 img │  │  392×392 img │                                      │
+│  │  r=32px      │  │  r=32px      │  │  r=32px      │                                      │
+│  └──────────────┘  └──────────────┘  └──────────────┘                                      │
+│  Kristin Jenifar   Johnson Watson      Leasie Willions   ← gap-32px between rows            │
+│  Real Estate Agent Real Estate Agent   Real Estate Agent                                     │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│  FOOTER CTA + FOOTER                                                                        │
+└────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Important layout notes:**
+- **No section heading/subtext/viewAll button** exists within the content area — the hero "Our Agents" heading serves as the page title; the grid starts immediately after the hero
+- **No pagination** — all 6 agents shown on one screen (static display)
+- **Row gap:** 32px between rows; **Card gap:** 32px between cards within a row
+- **Image-to-text gap:** 16px between image bottom and name
+
+**Agent card — exact dimensions from React code:**
+
+| Element | Value |
+|---------|-------|
+| Image container | `size-[392px]` (392×392), `rounded-[32px]` (=xl3), `overflow-clip` |
+| Image | `object-cover`, positioned per photo |
+| Gap (image→text) | `gap-[16px]` |
+| Name | 24px · SemiBold · `#0d0a04` (light) / `#ffffff` (dark) · tracking -0.48px · w-[392px] |
+| Role/title | 16px · Regular · `#7b7b7b` (light) / `#a1a1a1` (dark) · opacity-70 · w-[392px] |
+
+**Mobile (375px):**
+- Cards stack **1 per row**, full-width: `h-[392px] w-full` (fixed height, fills column)
+- Header collapses to logo + hamburger
+- "Our Agents" hero heading reduces to 48px, centered
+
+**Dark mode:** Page bg `#0d0a04` · name text `#ffffff` · role text `#a1a1a1` (gray/500)
+
+**Confirmed seed agents (6):**
+1. Wade Warren — Real Estate Agent
+2. Jenny Wilson — Real Estate Agent
+3. Devon Lane — Real Estate Agent
+4. Kristin Jenifar — Real Estate Agent
+5. Johnson Watson — Real Estate Agent
+6. Leasie Willions — Real Estate Agent
+
+**Frontend query:**
+```ts
+// All agents (no pagination in design — fetch all)
+const agents = await payload.find({
+  collection: 'users', // Option A
+  where: { role: { equals: 'agent' } },
+  select: { name: true, photo: true, title: true },
+  limit: 0, // no limit — return all
+})
+```
+
+---
+
+**Design shows:** 3-column grid, 2 rows = 6 agents visible per view. Each card: 392×392 image (rounded-xl3=32px), name (24px semibold `#0d0a04`), title/role (16px `#7b7b7b`, opacity-70), gap-16px between image and text, gap-32px between cards — **verified ✓**
 
 #### Option A — Use Users collection (recommended)
 
@@ -1955,7 +2030,7 @@ export const sendContactEmailHook = async ({ doc, req }: any) => {
 | 10 | Property Details | `/properties/[slug]` | `848:17943` | Two-col layout: left=gallery (main+3 thumbs "+N More") + Inquiry Form; right=title/address/rating/stats + Descriptions richText + Details table (8 spec rows) + Agent card. Below: Similar Properties (2 cards) + FAQ accordion — **verified ✓** |
 | — | Property Listing – Map | `/properties?view=map` | (inferred) | Properties with `location` point field, map embed |
 | 11 | About Us | `/about` | `849:19015` | AboutPage global — Hero, Mission (heading+subText+2 images), About Details (label+body+CTA), Benefits (shared from home-page), Agents (3 cards), Testimonials (shared), FAQ (shared) — **verified ✓** |
-| 12 | Our Agents | `/agents` | `849:20536` | Users (role=agent), 3×2 card grid |
+| 12 | Our Agents | `/agents` | `849:20536` | Users (role=agent), hero (72px heading "Our Agents" + breadcrumbs) + 3×2 card grid (392×392, r=32px, no heading above grid, no pagination) — **verified ✓** |
 | 13 | Blog | `/blog` | `851:21975` | Posts collection, 2-col card grid, 6 per page |
 | 14 | Blog Details | `/blog/[slug]` | `852:23020` | Single Post + BlogComments + sidebar posts/categories |
 | 15 | Contact Us | `/contact` | `854:24397` | ContactSubmissions, contact info, form |
