@@ -1,16 +1,24 @@
 import type { ReactNode } from 'react'
 
 import { AdminBar } from '@/components/AdminBar'
-import { Footer } from '@/components/Footer'
-import { Header } from '@/components/Header'
+import { VentrFooter } from '@/components/VentrFooter'
+import { VentrHeader } from '@/components/VentrHeader'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { ensureStartsWith } from '@/utilities/ensureStartsWith'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
+import { Plus_Jakarta_Sans } from 'next/font/google'
 import React from 'react'
 import './globals.css'
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-jakarta',
+})
 
 /* const { SITE_NAME, TWITTER_CREATOR, TWITTER_SITE } = process.env
 const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
@@ -42,7 +50,9 @@ const twitterSite = TWITTER_SITE ? ensureStartsWith(TWITTER_SITE, 'https://') : 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
-      className={[GeistSans.variable, GeistMono.variable].filter(Boolean).join(' ')}
+      className={[GeistSans.variable, GeistMono.variable, jakarta.variable]
+        .filter(Boolean)
+        .join(' ')}
       lang="en"
       suppressHydrationWarning
     >
@@ -56,9 +66,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           <AdminBar />
           <LivePreviewListener />
 
-          <Header />
+          <VentrHeader />
           <main>{children}</main>
-          <Footer />
+          <VentrFooter />
         </Providers>
       </body>
     </html>

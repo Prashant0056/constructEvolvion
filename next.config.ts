@@ -28,9 +28,11 @@ const nextConfig: NextConfig = {
 
         return {
           hostname: url.hostname,
+          port: url.port,
           protocol: url.protocol.replace(':', '') as 'http' | 'https',
         }
       }),
+      { hostname: 'images.unsplash.com', protocol: 'https' as const },
     ],
   },
   reactStrictMode: true,

@@ -41,3 +41,6 @@ next-env.d.ts
 
 public/media
 
+
+# Figma design source (large binary)
+*.fig

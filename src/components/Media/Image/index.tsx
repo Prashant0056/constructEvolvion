@@ -49,7 +49,10 @@ export const Image: React.FC<MediaProps> = (props) => {
 
     const filename = fullFilename
 
-    src = `${process.env.NEXT_PUBLIC_SERVER_URL}${url}`
+    // Use a same-origin relative URL for local uploads so the Next image
+    // optimizer matches `images.localPatterns` (absolute localhost URLs are
+    // rejected by remotePatterns). Keep already-absolute URLs (cloud storage).
+    src = url && /^https?:\/\//.test(url) ? url : url || ''
   }
 
   // NOTE: this is used by the browser to determine which image to download at different screen sizes

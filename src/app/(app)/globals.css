@@ -228,3 +228,26 @@ input,
 button {
   @apply focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-50 dark:focus-visible:ring-neutral-600 dark:focus-visible:ring-offset-neutral-900;
 }
+
+/* ───────────────────────── Ventr design tokens ───────────────────────── */
+/* Brand + grays from PAYLOAD_SPEC.md (Ventr Figma). */
+:root {
+  --ink: #0d0a04; /* brand dark */
+  --subtle: #7b7b7b; /* gray/700 — body secondary */
+  --faint: #a1a1a1; /* gray/500 — captions */
+  --line: #dfdfdf; /* gray/200 — borders */
+}
+
+[data-theme='dark'] {
+  --subtle: #a1a1a1;
+  --faint: #7b7b7b;
+  --line: #3a3b3f; /* light/900 — dark-mode border */
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-subtle: var(--subtle);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --font-sans: var(--font-jakarta), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
