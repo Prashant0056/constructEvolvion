@@ -864,20 +864,118 @@ const { docs, totalDocs } = await payload.find({
 
 ---
 
-#### Blog Details Page (Page 14) — pending verification (node `852:23020`)
-- Breadcrumbs: Home > Blog > Post Title
-- Hero banner image (1240×500)
-- **Main column** (784px wide):
-  - Post title (H2)
-  - Body text (multi-paragraph richText)
-  - Blockquote section
-  - Additional body text
-  - Comments section (count, list of comments with avatar/name/date/text)
-  - Leave a Reply form (Name, Email inputs + Message textarea + Submit)
-- **Sidebar** (392px wide):
-  - Search input
-  - Latest Posts (thumbnail + title + date, 3 posts)
-  - Categories list (6 categories with counts)
+#### Verified Page Layout — "14 Blog Details" (node `852:23020`) ✓
+
+```
+┌──────────────────────────────────────── 1440px ────────────────────────────────────────┐
+│  HEADER (1440×96)                                                                      │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  BREADCRUMBS (1440×52, y=96)  x=100                                                   │
+│  Home > Blog > "Expert Tips for Profitable Real Estate Investments."  14px white       │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  HERO IMAGE (x=100, y=180, 1240×500px) — rounded, object-cover                        │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  TWO-COLUMN CONTENT (x=100, y=712, 1240px wide)                                       │
+│  ┌───────────────────── 784px ──────────────────────┐  64px  ┌────── 392px ──────┐    │
+│  │  MAIN COLUMN                                      │  gap   │  SIDEBAR          │    │
+│  │                                                   │        │                   │    │
+│  │  Post title (784×120, large heading)              │        │  Search (392×48)  │    │
+│  │  Body paragraph 1 (784×360, richText)             │        │                   │    │
+│  │                                                   │        │  "Latest Post"    │    │
+│  │  ┌── BLOCKQUOTE (784×154) ─────────────────────┐ │        │  (392×360)        │    │
+│  │  │  32px left padding · italic/styled text     │ │        │  3 posts:         │    │
+│  │  └─────────────────────────────────────────────┘ │        │  thumb (80×80) +  │    │
+│  │                                                   │        │  title + date     │    │
+│  │  Body paragraph 2 (784×144)                       │        │                   │    │
+│  │                                                   │        │  "Categories"     │    │
+│  │  ─── COMMENTS ──────────────────────────────────  │        │  (392×376)        │    │
+│  │  "2 Comments" heading                             │        │  6 items listed   │    │
+│  │  [avatar 50×50] Robert Fox · Nov 13 2024          │        │  (text only,      │    │
+│  │                 comment body (784×48)              │        │   no counts)      │    │
+│  │  [avatar 50×50] Willions John · Nov 13 2024       │        │                   │    │
+│  │                 comment body (784×48)              │        └───────────────────┘    │
+│  │                                                   │                                  │
+│  │  ─── LEAVE A REPLY ─────────────────────────────  │                                  │
+│  │  "Leave a Reply" heading                          │                                  │
+│  │  Name input (784×72)                              │                                  │
+│  │  Email input (784×72)                             │                                  │
+│  │  Message textarea (784×138)                       │                                  │
+│  │  [Submit →] 151px (103px label + 48px icon)       │                                  │
+│  └───────────────────────────────────────────────────┘                                  │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  FOOTER (1440×1422, y=2532)                                                            │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Exact measurements:**
+
+| Section | Dimensions | Notes |
+|---------|-----------|-------|
+| Breadcrumbs | 1440×52, y=96 | x=100, Home > Blog > title |
+| Hero image | 1240×500, x=100, y=180 | 32px gap below breadcrumbs area |
+| Content frame | 1240×1740, x=100, y=712 | 32px gap below image |
+| Main column | 784×1740, x=0 in frame | title+body+blockquote+body+comments+form |
+| Gap between cols | 64px | sidebar starts at x=848 |
+| Sidebar | 392×848, x=848 | search+latest posts+categories |
+| Post title | 784×120, y=0 | large H1/H2 heading |
+| Body para 1 | 784×360, y=136 | richText, 16px gap below title |
+| Blockquote frame | 784×154, y=528 | inner text: x=32, y=32, w=720 |
+| Body para 2 | 784×144, y=714 | after blockquote |
+| Comments section | 784×320, y=922 | heading + 2 comment items |
+| Comment item | 784×122 | avatar 50×50 ellipse + name(24px)/date(20px) + body(784×48) |
+| Leave a Reply | 784×466, y=1274 | heading + form |
+| Reply form inputs | Name(784×72) + Email(784×72) + Textarea(784×138) | |
+| Submit button | 151px = 103px text + 48px arrow icon | |
+| Sidebar search | 392×48 | |
+| Latest Post | 392×360, y=80 | "Latest Post" title + 3 posts |
+| Post thumbnail | 80×80, rounded | + title (296×48) + date (296×20) |
+| Categories | 392×376, y=472 | "Categories" title + 6 items |
+| Category item | 392×40 | text label only — **NO counts** |
+
+**Corrections to prior spec:**
+- Categories sidebar shows **text labels only, no post counts** (removed "with counts")
+- Author/date **not shown on article** itself — only on comments
+
+**Confirmed sidebar categories (6):**
+1. Investment Insights
+2. Modern Bungalows
+3. Real Estate
+4. Properties
+5. Legal Guidance
+6. Community Spotlight
+
+**Confirmed comments (sample data):**
+- Robert Fox · Nov 13, 2024
+- Willions John · Nov 13, 2024
+
+**Mobile (375px):**
+- Hero image: 343×200 (shorter ratio)
+- Sidebar moves **below** main content (stacks vertically, starts at y=2676 in content frame)
+- Both main column and sidebar use 343px width
+- Submit button stays 151px (103+48)
+
+**Frontend query:**
+```ts
+// Blog detail page — fetch post + related data
+const post = await payload.findOne({
+  collection: 'posts',
+  where: { slug: { equals: params.slug } },
+  depth: 1,
+})
+const comments = await payload.find({
+  collection: 'blog-comments',
+  where: { post: { equals: post.id }, approved: { equals: true } },
+  sort: '-createdAt',
+})
+const latestPosts = await payload.find({
+  collection: 'posts',
+  where: { status: { equals: 'published' }, slug: { not_equals: params.slug } },
+  select: { title: true, heroImage: true, slug: true, publishedAt: true },
+  limit: 3,
+  sort: '-publishedAt',
+})
+const categories = await payload.find({ collection: 'blog-categories', limit: 0 })
+```
 
 #### Fields
 
@@ -2110,7 +2208,7 @@ export const sendContactEmailHook = async ({ doc, req }: any) => {
 | 11 | About Us | `/about` | `849:19015` | AboutPage global — Hero, Mission (heading+subText+2 images), About Details (label+body+CTA), Benefits (shared from home-page), Agents (3 cards), Testimonials (shared), FAQ (shared) — **verified ✓** |
 | 12 | Our Agents | `/agents` | `849:20536` | Users (role=agent), hero (72px heading "Our Agents" + breadcrumbs) + 3×2 card grid (392×392, r=32px, no heading above grid, no pagination) — **verified ✓** |
 | 13 | Blog | `/blog` | `851:21975` | Posts collection — hero ("Blog" heading + breadcrumbs) + 3×2 card grid (604×780 cards, 604×604 img, 32px gaps, no heading above grid, no pagination in design) — **verified ✓** |
-| 14 | Blog Details | `/blog/[slug]` | `852:23020` | Single Post + BlogComments + sidebar posts/categories |
+| 14 | Blog Details | `/blog/[slug]` | `852:23020` | Breadcrumbs → hero img (1240×500) → two-col: main (784px, title+richText+blockquote+comments+reply form) + sidebar (392px, search+3 latest posts+6 categories) — sidebar stacks below on mobile — **verified ✓** |
 | 15 | Contact Us | `/contact` | `854:24397` | ContactSubmissions, contact info, form |
 | 16 | Terms & Conditions | `/terms` | (inferred) | TermsConditions global |
 | 17 | Privacy Policy | `/privacy-policy` | `856:26564` | PrivacyPolicy global |
