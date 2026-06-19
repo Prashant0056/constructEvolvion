@@ -188,7 +188,7 @@ export const Media: CollectionConfig = {
 - **07 Property Listing – Grid** (node `844:8443`) — verified ✓
 - **08 Property Listing – List** (node `846:10781`) — same data, horizontal layout
 - **09 Property Listing – Filter** (node `847:12914`) — sidebar filter panel open
-- **Property Detail** — full property with gallery, amenities, map, agent contact
+- **10 Property Details** (node `848:17943`) — verified ✓
 
 #### Property Listing Page — Layout (verified from node 844:8443)
 
@@ -227,6 +227,72 @@ export const Media: CollectionConfig = {
 
 > **Important:** Price is NOT shown on listing cards. It appears only on the Featured Property Spotlight (home page) and on the Property Detail page.
 
+#### Property Detail Page — Layout (verified from node 848:17943)
+
+```
+[Header — 1440×96]
+[Breadcrumbs — Home > Properties > {Title}]
+[All Property Details — 1440px, two-column content area]
+  LEFT COLUMN (x=100, width=616):
+    [Images — 616×825]
+      Main image      (616×616, rounded-xl)
+      Thumbnail row   (3 × 189×185, 24px gap)
+        thumb 1 | thumb 2 | thumb 3 "+4 More"
+    [Inquiry Form — 616×594, card with border]
+      "Inquiry Form" heading
+      Name       (Input, 568×72)
+      Email      (Input, 568×72)
+      Phone      (Input, 568×72)
+      Message    (Textarea, 568×138)
+      [Send Inquiry btn — 190×48]
+
+  RIGHT COLUMN (x=780, width=560):
+    [Property Header — 560×222]
+      Title        (large heading, 404×90)
+      📍 Display Address
+      ⭐ 4.8 (12K Reviews)
+      🛏 6 bedrooms  🚿 8 baths  ⬜ 6740 Sqft
+    [Descriptions — richText body]
+    [Details table — 560×408, 2-col grid, 72px rows]
+      Built Up Area  | Dimensions
+      Carpet Area    | Built Year
+      Property Category | Property Status
+      Bedrooms       | Bathrooms
+      Balcony        | Parking
+    [Agent Details — 560×144]
+      "Agent Details" heading
+      [Avatar 64×64] Jacob Jones / Real Estate Agent  [Contact btn]
+
+[Similar Properties — 1440×896]
+  "Similar Properties" heading + "View All" btn
+  Row of 2 property cards (same 604×716 grid cards)
+
+[FAQ Section — 1440×804]
+  "Frequently Ask Questions" heading + sub-text
+  4 accordion items (same set as Home page FAQ)
+
+[Footer CTA + Footer]
+```
+
+**Inquiry Form** saves to `contact-submissions` with `source: 'property-detail'` and `relatedProperty` populated.
+
+**Rating** shown on detail header ("4.8 (12K Reviews)") — stored as `rating` + `reviewCount` fields on the property.
+
+**Similar Properties** query — fetch 2 properties matching same `propertyType`, excluding current slug, sorted by `-createdAt`:
+```ts
+await payload.find({
+  collection: 'properties',
+  where: {
+    propertyType: { equals: currentProperty.propertyType },
+    slug: { not_equals: currentProperty.slug },
+    status: { equals: 'published' },
+  },
+  limit: 2,
+  depth: 1,
+  select: { title: true, slug: true, heroImage: true, bedrooms: true, bathrooms: true, area: true, 'address.displayAddress': true },
+})
+```
+
 **6 sample properties visible in design:**
 | # | Title | Beds | Baths | Area |
 |---|-------|------|-------|------|
@@ -239,31 +305,38 @@ export const Media: CollectionConfig = {
 
 #### Fields
 
-| Field | Type | Notes | Card? |
-|-------|------|-------|-------|
-| `title` | `text` | required, `useAsTitle` | ✓ |
-| `slug` | `text` | unique, index, auto-generated | — |
-| `status` | `select` | `draft` \| `published` \| `sold` \| `rented` | — |
-| `listingType` | `select` | `sale` \| `rent`, required, **indexed** | filter |
-| `price` | `number` | required, **indexed** | detail only |
-| `currency` | `select` | `USD` \| `EUR` \| `GBP`, default `USD` | detail only |
-| `propertyType` | `select` | `house` \| `apartment` \| `villa` \| `studio` \| `commercial` \| `land`, **indexed** | filter |
-| `bedrooms` | `number` | integer, **indexed** | ✓ |
-| `bathrooms` | `number` | integer, **indexed** | ✓ |
-| `area` | `number` | sqft/m², **indexed** | ✓ |
-| `areaUnit` | `select` | `sqft` \| `sqm`, default `sqft` | ✓ |
-| `yearBuilt` | `number` | 4-digit year | detail only |
-| `featured` | `checkbox` | pins to home page spotlight | — |
-| `heroImage` | `upload` | relationTo `media`, required | ✓ (604×604) |
-| `gallery` | `array` | `{ image, caption }` | detail only |
-| `description` | `richText` | full property description | detail only |
-| `amenities` | `array` | `{ label }` — pool, gym, parking… | detail only |
-| `address` | `group` | street, city, state, zip, country, displayAddress | ✓ (displayAddress) |
+| Field | Type | Notes | Shown on |
+|-------|------|-------|---------|
+| `title` | `text` | required, `useAsTitle` | card + detail |
+| `slug` | `text` | unique, index, auto-generated | URL |
+| `status` | `select` | `draft` \| `published` \| `sold` \| `rented` — **publication status** | sidebar |
+| `listingType` | `select` | `sale` \| `rent`, required, **indexed** | filter + detail |
+| `price` | `number` | required, **indexed** | detail + spotlight |
+| `currency` | `select` | `USD` \| `EUR` \| `GBP`, default `USD` | detail |
+| `propertyType` | `select` | `house` \| `apartment` \| `villa` \| `studio` \| `commercial` \| `land`, **indexed** | filter + Details table |
+| `propertyStatus` | `select` | `ready` \| `under-construction` \| `off-plan` — **marketing status shown in Details table** | detail |
+| `bedrooms` | `number` | integer, **indexed** | card + detail |
+| `bathrooms` | `number` | integer, **indexed** | card + detail |
+| `balcony` | `number` | count of balconies | detail (Details table) |
+| `parking` | `text` | e.g. "2 Car Parking" | detail (Details table) |
+| `area` | `number` | built-up area in sqft/m², **indexed** | card + detail |
+| `carpetArea` | `number` | carpet/usable area | detail (Details table) |
+| `dimensions` | `text` | plot dimensions, e.g. "50X60" | detail (Details table) |
+| `areaUnit` | `select` | `sqft` \| `sqm`, default `sqft` | card + detail |
+| `yearBuilt` | `number` | 4-digit year, shown as "Built Year" | detail (Details table) |
+| `rating` | `number` | e.g. 4.8 — shown as "⭐ 4.8 (12K Reviews)" on detail header | detail |
+| `reviewCount` | `text` | e.g. "12K Reviews" | detail |
+| `featured` | `checkbox` | pins to home page spotlight | home |
+| `heroImage` | `upload` | relationTo `media`, required — 616×616 main image | card + detail |
+| `gallery` | `array` | `{ image, caption }` — thumbnails shown 189×185, "+N More" badge | detail |
+| `description` | `richText` | "Descriptions" section body | detail |
+| `amenities` | `array` | `{ label }` — pool, gym, etc. | detail |
+| `address` | `group` | street, city, state, zip, country, displayAddress | card (displayAddress) + detail |
 | `location` | `point` | `[longitude, latitude]` for map queries | map view |
-| `agent` | `relationship` | relationTo `users` (role=agent), required | detail only |
+| `agent` | `relationship` | relationTo `users` (role=agent), required — shown as Agent Details card | detail |
 | `tags` | `array` | `{ tag }` — for search | filter |
-| `videoUrl` | `text` | YouTube/Vimeo embed | detail only |
-| `virtualTourUrl` | `text` | Matterport or similar | detail only |
+| `videoUrl` | `text` | YouTube/Vimeo embed | detail |
+| `virtualTourUrl` | `text` | Matterport or similar | detail |
 | `createdAt` | `date` | auto (timestamps) | sort |
 | `updatedAt` | `date` | auto (timestamps) | — |
 
@@ -368,6 +441,17 @@ export const Properties: CollectionConfig = {
       index: true,
     },
     {
+      name: 'propertyStatus',
+      type: 'select',
+      options: [
+        { label: 'Ready', value: 'ready' },
+        { label: 'Under Construction', value: 'under-construction' },
+        { label: 'Off Plan', value: 'off-plan' },
+      ],
+      defaultValue: 'ready',
+      admin: { description: 'Marketing status shown in Details table on property detail page' },
+    },
+    {
       type: 'row',
       fields: [
         { name: 'bedrooms', type: 'number', min: 0, index: true },
@@ -377,7 +461,14 @@ export const Properties: CollectionConfig = {
     {
       type: 'row',
       fields: [
-        { name: 'area', type: 'number', min: 0, index: true },
+        { name: 'balcony', type: 'number', min: 0 },
+        { name: 'parking', type: 'text', admin: { placeholder: 'e.g. 2 Car Parking' } },
+      ],
+    },
+    {
+      type: 'row',
+      fields: [
+        { name: 'area', type: 'number', min: 0, index: true, admin: { description: 'Built-up area' } },
         {
           name: 'areaUnit',
           type: 'select',
@@ -386,17 +477,32 @@ export const Properties: CollectionConfig = {
         },
       ],
     },
-    { name: 'yearBuilt', type: 'number' },
+    {
+      type: 'row',
+      fields: [
+        { name: 'carpetArea', type: 'number', min: 0, admin: { description: 'Carpet/usable area' } },
+        { name: 'dimensions', type: 'text', admin: { placeholder: 'e.g. 50X60' } },
+      ],
+    },
+    { name: 'yearBuilt', type: 'number', admin: { description: 'Shown as "Built Year" in Details table' } },
+    {
+      type: 'row',
+      fields: [
+        { name: 'rating', type: 'number', min: 0, max: 5, admin: { description: 'e.g. 4.8 — shown on detail header' } },
+        { name: 'reviewCount', type: 'text', admin: { placeholder: 'e.g. 12K Reviews' } },
+      ],
+    },
     {
       name: 'heroImage',
       type: 'upload',
       relationTo: 'media',
       required: true,
-      admin: { description: 'Primary image — rendered at 604×604 on listing cards' },
+      admin: { description: 'Primary image — 616×616 on detail page, 604×604 on listing cards' },
     },
     {
       name: 'gallery',
       type: 'array',
+      admin: { description: 'Additional images — shown as 189×185 thumbnails with "+N More" badge' },
       fields: [
         { name: 'image', type: 'upload', relationTo: 'media', required: true },
         { name: 'caption', type: 'text' },
@@ -405,6 +511,7 @@ export const Properties: CollectionConfig = {
     {
       name: 'description',
       type: 'richText',
+      admin: { description: 'Shown in "Descriptions" section on detail page' },
     },
     {
       name: 'amenities',
@@ -1763,7 +1870,8 @@ export const sendContactEmailHook = async ({ doc, req }: any) => {
 | 07 | Property Listing – Grid | `/properties` | `844:8443` | Properties — 3×2 card grid, 10/page, Prev/Next pagination, view toggle, Filter btn, Sort By btn — **verified ✓** |
 | 08 | Property Listing – List | `/properties?view=list` | `846:10781` | Same query/pagination, horizontal card layout |
 | 09 | Property Listing – Filter | `/properties?filter=open` | `847:12914` | Left sidebar filter panel (price range, type, beds, baths, area, city) + same grid |
-| 10 | Property Listing – Map | `/properties?view=map` | (inferred) | Properties with `location` point field, map embed |
+| 10 | Property Details | `/properties/[slug]` | `848:17943` | Two-col layout: left=gallery (main+3 thumbs "+N More") + Inquiry Form; right=title/address/rating/stats + Descriptions richText + Details table (8 spec rows) + Agent card. Below: Similar Properties (2 cards) + FAQ accordion — **verified ✓** |
+| — | Property Listing – Map | `/properties?view=map` | (inferred) | Properties with `location` point field, map embed |
 | 11 | About Us | `/about` | `849:19015` | AboutPage global, agents subset |
 | 12 | Our Agents | `/agents` | `849:20536` | Users (role=agent), 3×2 card grid |
 | 13 | Blog | `/blog` | `851:21975` | Posts collection, 2-col card grid, 6 per page |
