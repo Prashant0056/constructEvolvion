@@ -50,10 +50,105 @@ export const Users: CollectionConfig = {
           value: 'admin',
         },
         {
+          label: 'agent',
+          value: 'agent',
+        },
+        {
           label: 'customer',
           value: 'customer',
         },
       ],
+    },
+    // ─── Agent profile (real-estate) ──────────────────────────────────
+    // Visible only for users with the `agent` role. Powers the agent
+    // cards on the Home and About pages and the Our Agents grid.
+    {
+      name: 'title',
+      type: 'text',
+      defaultValue: 'Real Estate Agent',
+      admin: {
+        condition: (data) => Boolean(data?.roles?.includes('agent')),
+      },
+    },
+    {
+      name: 'avatar',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        condition: (data) => Boolean(data?.roles?.includes('agent')),
+      },
+    },
+    {
+      name: 'bio',
+      type: 'textarea',
+      admin: {
+        condition: (data) => Boolean(data?.roles?.includes('agent')),
+      },
+    },
+    {
+      name: 'phone',
+      type: 'text',
+      admin: {
+        condition: (data) => Boolean(data?.roles?.includes('agent')),
+      },
+    },
+    {
+      type: 'row',
+      admin: {
+        condition: (data) => Boolean(data?.roles?.includes('agent')),
+      },
+      fields: [
+        { name: 'rating', type: 'number', min: 0, max: 5 },
+        { name: 'reviewCount', type: 'number', min: 0 },
+      ],
+    },
+    {
+      type: 'row',
+      admin: {
+        condition: (data) => Boolean(data?.roles?.includes('agent')),
+      },
+      fields: [
+        { name: 'totalSales', type: 'number', min: 0 },
+        { name: 'totalListings', type: 'number', min: 0 },
+      ],
+    },
+    {
+      name: 'specializations',
+      type: 'array',
+      admin: {
+        condition: (data) => Boolean(data?.roles?.includes('agent')),
+      },
+      fields: [{ name: 'label', type: 'text' }],
+    },
+    {
+      name: 'languages',
+      type: 'array',
+      admin: {
+        condition: (data) => Boolean(data?.roles?.includes('agent')),
+      },
+      fields: [{ name: 'language', type: 'text' }],
+    },
+    {
+      name: 'socialLinks',
+      type: 'group',
+      admin: {
+        condition: (data) => Boolean(data?.roles?.includes('agent')),
+      },
+      fields: [
+        { name: 'linkedin', type: 'text' },
+        { name: 'facebook', type: 'text' },
+        { name: 'instagram', type: 'text' },
+        { name: 'twitter', type: 'text' },
+      ],
+    },
+    {
+      name: 'featuredOnHomepage',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        condition: (data) => Boolean(data?.roles?.includes('agent')),
+      },
     },
     {
       name: 'orders',
